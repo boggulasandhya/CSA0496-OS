@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void copy_file(const char *source, const char *destination) {
+    FILE *src = fopen(source, "rb");  // Open source file in binary read mode
+    if (src == NULL) {
+        perror("Source file opening failed");
+        return;
+    }
+
+    FILE *dest = fopen(destination, "wb");  // Open destination file in binary write mode
+    if (dest == NULL) {
+        perror("Destination file opening failed");
+        fclose(src);
+        return;
+    }
+
+    char buffer[1024];  // Buffer to store data temporarily
+    size_t bytes;
+
+    // Read from source and write to destination
+    while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0) {
+        fwrite(buffer, 1, bytes, dest);
+    }
+
+    printf("File copied successfully!\n");
+
+    fclose(src);
+    fclose(dest);
+}
+
+int main() {
+    const char *source = "source.txt";
+    const char *destination = "destination.txt";
+    
+    copy_file(source, destination);
+    
+    return 0;
+}
