@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_REQUESTS 10
+
+// Function to calculate the total seek time for FCFS disk scheduling
+void fcfsDiskScheduling(int requests[], int numRequests, int initialPosition) {
+    int totalSeekTime = 0;
+    int currentPosition = initialPosition;
+
+    printf("Disk Scheduling using First Come First Served (FCFS)\n");
+    printf("Initial Position: %d\n", initialPosition);
+    printf("Request Sequence: ");
+    
+    // Print the request sequence
+    for (int i = 0; i < numRequests; i++) {
+        printf("%d ", requests[i]);
+    }
+    printf("\n");
+
+    printf("\nService Order:\n");
+
+    // Process each request in the order they arrive (FCFS)
+    for (int i = 0; i < numRequests; i++) {
+        // Calculate the seek time (distance moved by the disk arm)
+        int seekTime = abs(requests[i] - currentPosition);
+        totalSeekTime += seekTime;
+        
+        // Print the disk arm movement
+        printf("Move from %d to %d (Seek Time: %d)\n", currentPosition, requests[i], seekTime);
+
+        // Update the current position of the disk arm
+        currentPosition = requests[i];
+    }
+
+    // Print the total seek time
+    printf("\nTotal Seek Time: %d\n", totalSeekTime);
+}
+
+int main() {
+    // Array of disk requests (cylinder numbers)
+    int requests[MAX_REQUESTS] = {98, 183, 37, 122, 14, 124, 65, 67};
+    
+    int numRequests = 8;  // Number of requests
+    int initialPosition = 53;  // Initial position of the disk arm
+    
+    // Call the FCFS disk scheduling function
+    fcfsDiskScheduling(requests, numRequests, initialPosition);
+
+    return 0;
+}
