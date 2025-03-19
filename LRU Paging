@@ -1,0 +1,64 @@
+#include <stdio.h>
+
+#define FRAME_SIZE 3  // Number of frames in memory
+#define NUM_PAGES 12  // Number of page references
+
+// Function to implement LRU paging
+void lruPaging(int pages[], int numPages, int frameSize) {
+    int frames[frameSize];
+    int pageFaults = 0;
+
+    // Initialize all frames as empty (-1 means empty)
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+    }
+
+    // Simulate page reference handling
+    for (int i = 0; i < numPages; i++) {
+        int pageFound = 0;
+        // Check if the current page is already in memory
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) {
+                pageFound = 1;  // Page is already in memory
+                // Move this page to the front (most recently used)
+                for (int k = j; k > 0; k--) {
+                    frames[k] = frames[k - 1];  // Shift pages to the right
+                }
+                frames[0] = pages[i];  // Place the accessed page at the front
+                break;
+            }
+        }
+
+        // If page is not found in memory, it's a page fault
+        if (!pageFound) {
+            pageFaults++;
+
+            // If memory is full, remove the least recently used page
+            for (int j = frameSize - 1; j > 0; j--) {
+                frames[j] = frames[j - 1];  // Shift pages to the right
+            }
+            frames[0] = pages[i];  // Insert the new page at the front
+        }
+
+        // Display the current memory frames after each reference
+        printf("Page: %d -> Frames: ", pages[i]);
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] != -1) {
+                printf("%d ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    // Page reference string (example)
+    int pages[NUM_PAGES] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3};
+
+    printf("LRU Page Replacement Algorithm\n");
+    lruPaging(pages, NUM_PAGES, FRAME_SIZE);
+
+    return 0;
+}
