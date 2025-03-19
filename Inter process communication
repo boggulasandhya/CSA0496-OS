@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main() {
+    int pipefd[2]; // pipefd[0] is for reading, pipefd[1] is for writing
+    pid_t child_pid;
+
+    // Create a pipe
+    if (pipe(pipefd) == -1) {
+        perror("pipe failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Create a child process
+    if ((child_pid = fork()) == -1) {
+        perror("fork failed");
+        exit(EXIT_FAILURE);
+    }
+
+    if (child_pid == 0) {
+        // Child process: Reading from the pipe
+        close(pipefd[1]); // Close the write end of the pipe
+
+        char buffer[128];
+        int bytes_read = read(pipefd[0], buffer, sizeof(buffer));
+        if (bytes_read == -1) {
+            perror("read failed");
+            exit(EXIT_FAILURE);
+        }
+
+        buffer[bytes_read] = '\0'; // Null terminate the received data
+        printf("Child received: %s\n", buffer);
+
+        close(pipefd[0]); // Close the read end of the pipe
+    } else {
+        // Parent process: Writing to the pipe
+        close(pipefd[0]); // Close the read end of the pipe
+
+        const char *message = "Hello from parent process!";
+        int bytes_written = write(pipefd[1], message, strlen(message));
+
+        if (bytes_written == -1) {
+            perror("write failed");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Parent sent: %s\n", message);
+
+        close(pipefd[1]); // Close the write end of the pipe
+        wait(NULL); // Wait for the child process to finish
+    }
+
+    return 0;
+}
