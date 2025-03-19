@@ -1,0 +1,272 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_SUBDIRS 5
+#define MAX_FILES 10
+#define FILENAME_LENGTH 100
+#define SUBDIRNAME_LENGTH 100
+
+// Structure to represent a subdirectory
+typedef struct {
+    char subDirName[SUBDIRNAME_LENGTH];
+    char files[MAX_FILES][FILENAME_LENGTH]; // Files in this subdirectory
+    int fileCount;
+} SubDirectory;
+
+// Function to create a subdirectory
+void createSubdirectory(SubDirectory rootDir[MAX_SUBDIRS], int *subDirCount, char *subDirName) {
+    if (*subDirCount >= MAX_SUBDIRS) {
+        printf("Error: Maximum number of subdirectories reached.\n");
+        return;
+    }
+    
+    // Check if the subdirectory already exists
+    for (int i = 0; i < *subDirCount; i++) {
+        if (strcmp(rootDir[i].subDirName, subDirName) == 0) {
+            printf("Error: Subdirectory '%s' already exists.\n", subDirName);
+            return;
+        }
+    }
+
+    // Create new subdirectory
+    strcpy(rootDir[*subDirCount].subDirName, subDirName);
+    rootDir[*subDirCount].fileCount = 0; // Initialize file count to 0
+    (*subDirCount)++;
+    printf("Subdirectory '%s' created successfully.\n", subDirName);
+}
+
+// Function to delete a subdirectory
+void deleteSubdirectory(SubDirectory rootDir[MAX_SUBDIRS], int *subDirCount, char *subDirName) {
+    int index = -1;
+
+    // Find the subdirectory
+    for (int i = 0; i < *subDirCount; i++) {
+        if (strcmp(rootDir[i].subDirName, subDirName) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Error: Subdirectory '%s' not found.\n", subDirName);
+        return;
+    }
+
+    // Shift subdirectories to fill the gap
+    for (int i = index; i < *subDirCount - 1; i++) {
+        rootDir[i] = rootDir[i + 1];
+    }
+    (*subDirCount)--;
+
+    printf("Subdirectory '%s' and its files deleted successfully.\n", subDirName);
+}
+
+// Function to create a file in a subdirectory
+void createFile(SubDirectory rootDir[MAX_SUBDIRS], int subDirCount, char *subDirName, char *fileName) {
+    int index = -1;
+
+    // Find the subdirectory
+    for (int i = 0; i < subDirCount; i++) {
+        if (strcmp(rootDir[i].subDirName, subDirName) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Error: Subdirectory '%s' not found.\n", subDirName);
+        return;
+    }
+
+    // Check if the file already exists in the subdirectory
+    for (int i = 0; i < rootDir[index].fileCount; i++) {
+        if (strcmp(rootDir[index].files[i], fileName) == 0) {
+            printf("Error: File '%s' already exists in '%s'.\n", fileName, subDirName);
+            return;
+        }
+    }
+
+    // Add the file to the subdirectory
+    strcpy(rootDir[index].files[rootDir[index].fileCount], fileName);
+    rootDir[index].fileCount++;
+    printf("File '%s' created in subdirectory '%s' successfully.\n", fileName, subDirName);
+}
+
+// Function to delete a file from a subdirectory
+void deleteFile(SubDirectory rootDir[MAX_SUBDIRS], int subDirCount, char *subDirName, char *fileName) {
+    int index = -1;
+
+    // Find the subdirectory
+    for (int i = 0; i < subDirCount; i++) {
+        if (strcmp(rootDir[i].subDirName, subDirName) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Error: Subdirectory '%s' not found.\n", subDirName);
+        return;
+    }
+
+    int fileIndex = -1;
+    // Find the file in the subdirectory
+    for (int i = 0; i < rootDir[index].fileCount; i++) {
+        if (strcmp(rootDir[index].files[i], fileName) == 0) {
+            fileIndex = i;
+            break;
+        }
+    }
+
+    if (fileIndex == -1) {
+        printf("Error: File '%s' not found in subdirectory '%s'.\n", fileName, subDirName);
+        return;
+    }
+
+    // Shift files to fill the gap
+    for (int i = fileIndex; i < rootDir[index].fileCount - 1; i++) {
+        strcpy(rootDir[index].files[i], rootDir[index].files[i + 1]);
+    }
+    rootDir[index].fileCount--;
+
+    printf("File '%s' deleted from subdirectory '%s' successfully.\n", fileName, subDirName);
+}
+
+// Function to list files in a subdirectory
+void listFiles(SubDirectory rootDir[MAX_SUBDIRS], int subDirCount, char *subDirName) {
+    int index = -1;
+
+    // Find the subdirectory
+    for (int i = 0; i < subDirCount; i++) {
+        if (strcmp(rootDir[i].subDirName, subDirName) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Error: Subdirectory '%s' not found.\n", subDirName);
+        return;
+    }
+
+    // List files in the subdirectory
+    if (rootDir[index].fileCount == 0) {
+        printf("No files in subdirectory '%s'.\n", subDirName);
+    } else {
+        printf("Files in subdirectory '%s':\n", subDirName);
+        for (int i = 0; i < rootDir[index].fileCount; i++) {
+            printf("%s\n", rootDir[index].files[i]);
+        }
+    }
+}
+
+// Function to search for a file in a subdirectory
+void searchFile(SubDirectory rootDir[MAX_SUBDIRS], int subDirCount, char *subDirName, char *fileName) {
+    int index = -1;
+
+    // Find the subdirectory
+    for (int i = 0; i < subDirCount; i++) {
+        if (strcmp(rootDir[i].subDirName, subDirName) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Error: Subdirectory '%s' not found.\n", subDirName);
+        return;
+    }
+
+    // Search for the file in the subdirectory
+    for (int i = 0; i < rootDir[index].fileCount; i++) {
+        if (strcmp(rootDir[index].files[i], fileName) == 0) {
+            printf("File '%s' found in subdirectory '%s'.\n", fileName, subDirName);
+            return;
+        }
+    }
+
+    printf("File '%s' not found in subdirectory '%s'.\n", fileName, subDirName);
+}
+
+int main() {
+    SubDirectory rootDir[MAX_SUBDIRS]; // Root directory holding subdirectories
+    int subDirCount = 0; // Number of subdirectories
+
+    int choice;
+    char subDirName[SUBDIRNAME_LENGTH];
+    char fileName[FILENAME_LENGTH];
+
+    while (1) {
+        // Displaying the menu
+        printf("\nTwo-Level Directory Structure\n");
+        printf("1. Create a Subdirectory\n");
+        printf("2. Delete a Subdirectory\n");
+        printf("3. Create a File\n");
+        printf("4. Delete a File\n");
+        printf("5. List Files in a Subdirectory\n");
+        printf("6. Search for a File in a Subdirectory\n");
+        printf("7. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                // Create a new subdirectory
+                printf("Enter the subdirectory name: ");
+                scanf("%s", subDirName);
+                createSubdirectory(rootDir, &subDirCount, subDirName);
+                break;
+
+            case 2:
+                // Delete a subdirectory
+                printf("Enter the subdirectory name to delete: ");
+                scanf("%s", subDirName);
+                deleteSubdirectory(rootDir, &subDirCount, subDirName);
+                break;
+
+            case 3:
+                // Create a file in a subdirectory
+                printf("Enter the subdirectory name to add the file to: ");
+                scanf("%s", subDirName);
+                printf("Enter the filename to create: ");
+                scanf("%s", fileName);
+                createFile(rootDir, subDirCount, subDirName, fileName);
+                break;
+
+            case 4:
+                // Delete a file from a subdirectory
+                printf("Enter the subdirectory name to delete the file from: ");
+                scanf("%s", subDirName);
+                printf("Enter the filename to delete: ");
+                scanf("%s", fileName);
+                deleteFile(rootDir, subDirCount, subDirName, fileName);
+                break;
+
+            case 5:
+                // List files in a subdirectory
+                printf("Enter the subdirectory name to list files: ");
+                scanf("%s", subDirName);
+                listFiles(rootDir, subDirCount, subDirName);
+                break;
+
+            case 6:
+                // Search for a file in a subdirectory
+                printf("Enter the subdirectory name to search in: ");
+                scanf("%s", subDirName);
+                printf("Enter the filename to search: ");
+                scanf("%s", fileName);
+                searchFile(rootDir, subDirCount, subDirName, fileName);
+                break;
+
+            case 7:
+                // Exit the program
+                printf("Exiting the program.\n");
+                return 0;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
