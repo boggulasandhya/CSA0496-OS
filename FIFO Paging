@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+#define FRAME_SIZE 3  // Number of frames in memory
+#define NUM_PAGES 12  // Number of page references
+
+// Function to implement FIFO paging
+void fifoPaging(int pages[], int numPages, int frameSize) {
+    int frames[frameSize];
+    int pageFaults = 0;
+    int pageFound;
+    
+    // Initialize all frames as empty (-1 means empty)
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+    }
+
+    // Simulate page reference handling
+    for (int i = 0; i < numPages; i++) {
+        pageFound = 0;
+        
+        // Check if the current page is already in memory
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) {
+                pageFound = 1;  // Page is already in memory
+                break;
+            }
+        }
+
+        // If page is not in memory, it is a page fault
+        if (!pageFound) {
+            pageFaults++;
+
+            // Replace the oldest page (FIFO)
+            for (int j = 0; j < frameSize - 1; j++) {
+                frames[j] = frames[j + 1];  // Shift pages to the left
+            }
+            frames[frameSize - 1] = pages[i];  // Insert the new page in the last position
+        }
+
+        // Display the current memory frames after each reference
+        printf("Page: %d -> Frames: ", pages[i]);
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] != -1) {
+                printf("%d ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    // Page reference string (example)
+    int pages[NUM_PAGES] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3};
+
+    printf("FIFO Page Replacement Algorithm\n");
+    fifoPaging(pages, NUM_PAGES, FRAME_SIZE);
+
+    return 0;
+}
