@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MEMORY_SIZE 10  // Total size of memory blocks
+#define NUM_PROCESSES 5 // Number of processes
+
+// Function to simulate the First Fit memory allocation
+void firstFit(int memory[], int memorySize, int processSizes[], int numProcesses) {
+    // Iterate over each process to allocate memory
+    for (int i = 0; i < numProcesses; i++) {
+        int allocated = 0;
+        
+        // Find the first available block that is large enough to allocate the process
+        for (int j = 0; j < memorySize; j++) {
+            if (memory[j] == 0 && processSizes[i] <= 1) { // Memory block is free and sufficient size for the process
+                memory[j] = processSizes[i];  // Allocate the block to the process
+                printf("Process %d of size %d allocated to memory block %d\n", i + 1, processSizes[i], j);
+                allocated = 1;
+                break;
+            }
+        }
+        
+        // If no suitable block is found, print an error message
+        if (!allocated) {
+            printf("Process %d of size %d could not be allocated\n", i + 1, processSizes[i]);
+        }
+    }
+}
+
+// Function to display memory status
+void displayMemory(int memory[], int memorySize) {
+    printf("\nMemory Allocation Status:\n");
+    for (int i = 0; i < memorySize; i++) {
+        if (memory[i] == 0) {
+            printf("Block %d: Free\n", i);
+        } else {
+            printf("Block %d: Occupied (Size: %d)\n", i, memory[i]);
+        }
+    }
+}
+
+int main() {
+    // Initialize memory with all blocks as free (0 means free)
+    int memory[MEMORY_SIZE] = {0};
+    
+    // Sizes of processes to be allocated
+    int processSizes[NUM_PROCESSES] = {4, 2, 3, 6, 1};
+    
+    printf("First Fit Memory Allocation\n");
+    
+    // Perform First Fit memory allocation
+    firstFit(memory, MEMORY_SIZE, processSizes, NUM_PROCESSES);
+    
+    // Display the final memory allocation status
+    displayMemory(memory, MEMORY_SIZE);
+    
+    return 0;
+}
