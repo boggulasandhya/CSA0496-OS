@@ -1,0 +1,94 @@
+#include <stdio.h>
+
+#define FRAME_SIZE 3  // Number of frames in memory
+#define NUM_PAGES 12  // Number of page references
+
+// Function to find the index of the page to replace (optimal replacement)
+int optimalPageReplacement(int frames[], int frameSize, int pages[], int numPages, int currentIndex) {
+    int farthest = -1;
+    int pageIndexToReplace = -1;
+    
+    // Loop over all pages in the frames to find the one that will be used furthest in the future
+    for (int i = 0; i < frameSize; i++) {
+        int j;
+        for (j = currentIndex; j < numPages; j++) {
+            if (frames[i] == pages[j]) {
+                break;
+            }
+        }
+        // If page not found in the future, it is the best candidate to be replaced
+        if (j == numPages) {
+            return i;
+        }
+        // If the page is used later, track how far it will be used in the future
+        if (j > farthest) {
+            farthest = j;
+            pageIndexToReplace = i;
+        }
+    }
+    return pageIndexToReplace;
+}
+
+// Function to implement Optimal Paging
+void optimalPaging(int pages[], int numPages, int frameSize) {
+    int frames[frameSize];
+    int pageFaults = 0;
+    
+    // Initialize frames to -1 (empty)
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+    }
+
+    // Simulate page reference handling
+    for (int i = 0; i < numPages; i++) {
+        int pageFound = 0;
+
+        // Check if the current page is already in memory
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) {
+                pageFound = 1;
+                break;
+            }
+        }
+
+        // If page is not found in memory, it's a page fault
+        if (!pageFound) {
+            pageFaults++;
+
+            // If memory is full, replace the optimal page (one that is used farthest in the future)
+            if (frames[frameSize - 1] != -1) {
+                int pageIndexToReplace = optimalPageReplacement(frames, frameSize, pages, numPages, i + 1);
+                frames[pageIndexToReplace] = pages[i];
+            } else {
+                // If there is space in memory, just add the new page
+                for (int j = 0; j < frameSize; j++) {
+                    if (frames[j] == -1) {
+                        frames[j] = pages[i];
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Display the current memory frames after each reference
+        printf("Page: %d -> Frames: ", pages[i]);
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] != -1) {
+                printf("%d ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    // Page reference string (example)
+    int pages[NUM_PAGES] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3};
+
+    printf("Optimal Page Replacement Algorithm\n");
+    optimalPaging(pages, NUM_PAGES, FRAME_SIZE);
+
+    return 0;
+}
