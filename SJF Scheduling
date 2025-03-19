@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a process
+typedef struct {
+    int pid;  // Process ID
+    int bt;   // Burst Time
+    int wt;   // Waiting Time
+    int tat;  // Turnaround Time
+} Process;
+
+// Function to compare processes based on burst time (for sorting)
+int compare(const void *a, const void *b) {
+    return ((Process*)a)->bt - ((Process*)b)->bt;
+}
+
+// Function to calculate waiting time and turnaround time
+void findWaitingAndTurnaroundTime(Process processes[], int n) {
+    processes[0].wt = 0;  // Waiting time for the first process is 0
+    processes[0].tat = processes[0].bt;  // Turnaround time = Burst time for the first process
+
+    // Calculate waiting and turnaround times
+    for (int i = 1; i < n; i++) {
+        processes[i].wt = processes[i-1].bt + processes[i-1].wt;  // Waiting time = Burst time of previous process + its waiting time
+        processes[i].tat = processes[i].bt + processes[i].wt;      // Turnaround time = Burst time + Waiting time
+    }
+}
+
+// Function to calculate average waiting time and turnaround time
+void findAverageTime(Process processes[], int n) {
+    int total_wt = 0, total_tat = 0;
+
+    for (int i = 0; i < n; i++) {
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+    }
+
+    printf("Process\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t\t%d\t\t%d\t\t%d\n", processes[i].pid, processes[i].bt, processes[i].wt, processes[i].tat);
+    }
+
+    printf("\nAverage Waiting Time: %.2f\n", (float)total_wt / n);
+    printf("Average Turnaround Time: %.2f\n", (float)total_tat / n);
+}
+
+int main() {
+    Process processes[] = {
+        {1, 6, 0, 0},
+        {2, 8, 0, 0},
+        {3, 7, 0, 0},
+        {4, 3, 0, 0}
+    };
+    int n = sizeof(processes) / sizeof(processes[0]);
+
+    // Sort processes based on burst time
+    qsort(processes, n, sizeof(Process), compare);
+
+    findWaitingAndTurnaroundTime(processes, n);
+    findAverageTime(processes, n);
+
+    return 0;
+}
