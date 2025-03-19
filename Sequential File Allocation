@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DISK_SIZE 10  // Total blocks on the disk
+#define MAX_FILES 5   // Maximum number of files
+
+// Structure to represent a file in the disk
+typedef struct {
+    int fileID;
+    int startBlock;  // Starting block of the file
+    int numBlocks;   // Number of blocks the file occupies
+} File;
+
+// Function to simulate sequential file allocation
+void sequentialFileAllocation(int disk[], File files[], int numFiles) {
+    int blockIndex = 0;  // Starting block index for file allocation
+    int nextAvailableBlock = 0;  // The next available block on the disk
+    
+    for (int i = 0; i < numFiles; i++) {
+        int fileSize = files[i].numBlocks;
+
+        // Check if there is enough space in the remaining disk
+        if (nextAvailableBlock + fileSize <= DISK_SIZE) {
+            // Allocate the blocks for the file
+            files[i].startBlock = nextAvailableBlock;
+            for (int j = nextAvailableBlock; j < nextAvailableBlock + fileSize; j++) {
+                disk[j] = files[i].fileID;  // Mark these blocks as allocated
+            }
+
+            printf("File %d allocated from block %d to block %d\n", files[i].fileID, nextAvailableBlock, nextAvailableBlock + fileSize - 1);
+            nextAvailableBlock += fileSize;  // Move the next available block forward
+        } else {
+            printf("Error: Not enough space to allocate File %d\n", files[i].fileID);
+        }
+    }
+}
+
+// Function to display the disk status
+void displayDiskStatus(int disk[]) {
+    printf("\nDisk Allocation Status:\n");
+    for (int i = 0; i < DISK_SIZE; i++) {
+        printf("Block %d: ", i);
+        if (disk[i] == -1) {
+            printf("Empty\n");
+        } else {
+            printf("File %d\n", disk[i]);
+        }
+    }
+}
+
+int main() {
+    // Disk simulation, initialized as empty (-1 means empty)
+    int disk[DISK_SIZE];
+    for (int i = 0; i < DISK_SIZE; i++) {
+        disk[i] = -1;  // -1 means the block is empty
+    }
+
+    // Files to allocate
+    File files[MAX_FILES] = {
+        {1, -1, 3},  // File 1 needs 3 blocks
+        {2, -1, 4},  // File 2 needs 4 blocks
+        {3, -1, 2},  // File 3 needs 2 blocks
+        {4, -1, 3},  // File 4 needs 3 blocks
+        {5, -1, 1}   // File 5 needs 1 block
+    };
+
+    // Perform sequential file allocation
+    sequentialFileAllocation(disk, files, MAX_FILES);
+
+    // Display the final disk status
+    displayDiskStatus(disk);
+
+    return 0;
+}
