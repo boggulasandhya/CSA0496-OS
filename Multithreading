@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+// Number of threads to create
+#define NUM_THREADS 5
+
+// Function that will be executed by each thread
+void* print_hello(void* thread_id) {
+    long tid = (long)thread_id;  // Get the thread ID
+    printf("Hello from thread %ld\n", tid);
+    return NULL;
+}
+
+int main() {
+    pthread_t threads[NUM_THREADS];  // Array to hold thread IDs
+    int rc;
+    
+    // Create NUM_THREADS threads
+    for (long t = 0; t < NUM_THREADS; t++) {
+        rc = pthread_create(&threads[t], NULL, print_hello, (void*)t);
+        if (rc) {
+            printf("Error creating thread %ld, return code %d\n", t, rc);
+            return -1;
+        }
+    }
+
+    // Wait for each thread to finish
+    for (long t = 0; t < NUM_THREADS; t++) {
+        pthread_join(threads[t], NULL);
+    }
+
+    printf("Main thread finishes execution.\n");
+    return 0;
+}
